@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const Book = require('./models/Book');
+const booksRoutes = require('./routes/books')
 
 mongoose.connect('mongodb+srv://jzarrouk:admintest@cluster0.ptjgcg1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
   { useNewUrlParser: true,
@@ -20,26 +20,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/api/books', (req, res, next) => {
-    delete req.body.id;
-    const book = new Book({
-        ...req.body
-    });
-    book.save()
-    .then(() => res.status(201).json({ message : 'Livre enregistré avec succès !' }))
-    .catch(error => res.status(400).json({ error }));
-});
-
-app.get('/api/books/:id', (req, res, next) => {
-    Book.findOne({ _id: req.params.id })
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(404).json({ error }));
-});
-
-app.get('/api/books', (req, res) => {
-    Book.find()
-    .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
-});
+app.use('/api/books', booksRoutes)
 
 module.exports = app;
