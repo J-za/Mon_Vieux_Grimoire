@@ -33,16 +33,16 @@ mv .env.example .env
 
 > 🧠 Le fichier `.env` est ignoré par Git grâce au `.gitignore`. Ne pas le versionner.
 
+> 📡 Le frontend attend que l’API soit accessible sur `http://localhost:4000`.  
+> Il est donc nécessaire de **configurer le backend** pour qu’il utilise le **port 4000**, via la variable `PORT` dans le fichier `.env`.
+
 ### 🚀 Lancement
 
-Démerrer le serveur en mode standard :
+Démarrer le serveur en mode standard :
 
 ```bash
 npm start
 ```
-
-Le backend démarre sur le port défini dans `.env`.
-Utiliser un port disponible sur la machine (ex : 3000, 4000, 8080…).
 
 ---
 
