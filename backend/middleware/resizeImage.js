@@ -8,14 +8,24 @@ const MIME_TYPES = {
   "image/png": "png",
 };
 
-// Stockage en mémoire
-const storage = multer.memoryStorage();
-const upload = multer({ storage }).single("image");
+// Vérification du MIME_TYPES et stockage en mémoire
+const fileFilter = (req, file, cb) => {
+  if (MIME_TYPES[file.mimetype]) {
+    cb(null, true); // type autorisé
+  } else {
+    cb(new Error("Invalid file type")); // rejeté
+  }
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter,
+}).single("image");
 
 // Middleware combiné : multer + sharp
 module.exports = (req, res, next) => {
   upload(req, res, (err) => {
-    if (err) return next(new Error("Invalid file type."));
+    if (err) return next(err);
     if (!req.file) return next();
 
     const originalName = req.file.originalname
