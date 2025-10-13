@@ -28,70 +28,41 @@ exports.createBook = (req, res, next) => {
     });
 };
 
-exports.modifyBook = (req, res, next) => {
-  const bookObject = req.file
-    ? { ...JSON.parse(req.body.book) }
-    : { ...req.body };
-  delete bookObject._userId;
+exports.modifyBook = async (req, res, next) => {
+  try {
+    const bookObject = req.file
+      ? { ...JSON.parse(req.body.book) }
+      : { ...req.body };
+    delete bookObject._userId;
 
-  Book.findOne({ _id: req.params.id })
-    .then((book) => {
-      if (!book) {
-        return res.status(404).json({ message: "Book not found." });
-      }
-      if (book.userId != req.auth.userId) {
-        return res.status(403).json({ message: "Forbidden." });
-      }
+    const book = await Book.findOne({ _id: req.params.id });
+    if (!book) {
+      return res.status(404).json({ message: "Book not found." });
+    }
 
-      if (req.file) {
-        const oldFilename = book.imageUrl.split("/images/")[1];
-        fs.promises
-          .unlink(`images/${oldFilename}`)
-          .then(() => {
-            bookObject.imageUrl = req.file.imageUrl;
-            return Book.updateOne(
-              { _id: req.params.id },
-              { ...bookObject, _id: req.params.id }
-            );
-          })
-          .then(() => {
-            return res
-              .status(200)
-              .json({ message: "Book successfully updated!" });
-          })
-          .catch((error) => {
-            return res.status(500).json({
-              message: error.message,
-              stack: error.stack,
-              name: error.name,
-            });
-          });
-      } else {
-        Book.updateOne(
-          { _id: req.params.id },
-          { ...bookObject, _id: req.params.id }
-        )
-          .then(() => {
-            return res
-              .status(200)
-              .json({ message: "Book successfully updated!" });
-          })
-          .catch((error) => {
-            return res.status(500).json({
-              message: error.message,
-              stack: error.stack,
-              name: error.name,
-            });
-          });
-      }
-    })
-    .catch((error) => {
-      return res.status(500).json({
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      });
+    if (book.userId !== req.auth.userId) {
+      return res.status(403).json({ message: "Forbidden." });
+    }
+
+    if (req.file) {
+      const oldFilename = book.imageUrl.split("/images/")[1];
+      await fs.promises.unlink(`images/${oldFilename}`);
+      bookObject.imageUrl = req.file.imageUrl;
+    }
+
+    await Book.updateOne(
+      { _id: req.params.id },
+      { ...bookObject, _id: req.params.id }
+    );
+
+    return res.status(200).json({ message: "Book successfully updated!" });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
     });
+  }
 };
 
 exports.deleteBook = (req, res, next) => {
