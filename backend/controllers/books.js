@@ -1,7 +1,7 @@
 const Book = require("../models/Book");
 const fs = require("fs");
 const path = require("path");
-const { stack } = require("../app");
+// const { stack } = require("../app");
 
 exports.createBook = (req, res, next) => {
   //JSON.stringify(book) envoyé par le frontend
