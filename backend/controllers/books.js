@@ -1,6 +1,7 @@
 const Book = require("../models/Book");
 const fs = require("fs");
 const path = require("path");
+const { stack } = require("../app");
 
 exports.createBook = (req, res, next) => {
   //JSON.stringify(book) envoyé par le frontend
@@ -19,7 +20,11 @@ exports.createBook = (req, res, next) => {
       return res.status(201).json({ message: "Book successfully saved!" });
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -49,22 +54,44 @@ exports.modifyBook = (req, res, next) => {
               { ...bookObject, _id: req.params.id }
             );
           })
-          .then(() =>
-            res.status(200).json({ message: "Book successfully updated!" })
-          )
-          .catch((error) => res.status(500).json({ error }));
+          .then(() => {
+            return res
+              .status(200)
+              .json({ message: "Book successfully updated!" });
+          })
+          .catch((error) => {
+            return res.status(500).json({
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+            });
+          });
       } else {
         Book.updateOne(
           { _id: req.params.id },
           { ...bookObject, _id: req.params.id }
         )
-          .then(() =>
-            res.status(200).json({ message: "Book successfully updated!" })
-          )
-          .catch((error) => res.status(500).json({ error }));
+          .then(() => {
+            return res
+              .status(200)
+              .json({ message: "Book successfully updated!" });
+          })
+          .catch((error) => {
+            return res.status(500).json({
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+            });
+          });
       }
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => {
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+    });
 };
 
 exports.deleteBook = (req, res, next) => {
@@ -74,7 +101,7 @@ exports.deleteBook = (req, res, next) => {
         return res.status(404).json({ message: "Book not found." });
       }
       if (book.userId != req.auth.userId) {
-        return res.status(403).json({ message: "Unauthorized." });
+        return res.status(403).json({ message: "Forbidden." });
       }
       const filename = book.imageUrl.split("/images/")[1];
       fs.promises
@@ -88,11 +115,19 @@ exports.deleteBook = (req, res, next) => {
             .json({ message: "Book successfully deleted!" });
         })
         .catch((error) => {
-          return res.status(500).json({ error });
+          return res.status(500).json({
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+          });
         });
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -125,7 +160,11 @@ exports.rateBook = (req, res, next) => {
       return res.status(200).json(updatedBook);
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -140,7 +179,11 @@ exports.getBestRatedBooks = (req, res, next) => {
       return res.status(200).json(books);
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -153,7 +196,11 @@ exports.getOneBook = (req, res, next) => {
       return res.status(200).json(book);
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -163,6 +210,10 @@ exports.getAllBook = (req, res) => {
       return res.status(200).json(books);
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };

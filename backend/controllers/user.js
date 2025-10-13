@@ -41,11 +41,19 @@ exports.signup = (req, res, next) => {
             .json({ message: "User successfully created!" });
         })
         .catch((error) => {
-          return res.status(400).json({ error });
+          return res.status(400).json({
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+          });
         });
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
 
@@ -81,10 +89,18 @@ exports.login = (req, res, next) => {
           });
         })
         .catch((error) => {
-          return res.status(500).json({ error });
+          return res.status(500).json({
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+          });
         });
     })
     .catch((error) => {
-      return res.status(500).json({ error });
+      return res.status(500).json({
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     });
 };
