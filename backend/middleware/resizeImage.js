@@ -25,8 +25,13 @@ const upload = multer({
 // Middleware combiné : multer + sharp
 module.exports = (req, res, next) => {
   upload(req, res, (err) => {
-    if (err) return next(err);
-    if (!req.file) return next();
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    if (!req.file) {
+      return next();
+    }
 
     const originalName = req.file.originalname
       .split(" ")
@@ -45,6 +50,8 @@ module.exports = (req, res, next) => {
         )}/images/${filename}`;
         next();
       })
-      .catch(next);
+      .catch((error) => {
+        return res.status(500).json({ message: error.message });
+      });
   });
 };

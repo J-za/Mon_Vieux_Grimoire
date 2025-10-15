@@ -1,13 +1,16 @@
 const Book = require("../models/Book");
 const fs = require("fs");
 const path = require("path");
-// const { stack } = require("../app");
 
 exports.createBook = (req, res, next) => {
   //JSON.stringify(book) envoyé par le frontend
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
+
+  if (!req.file) {
+    return res.status(400).json({ message: "Image is required." });
+  }
 
   const book = new Book({
     ...bookObject,
@@ -22,8 +25,6 @@ exports.createBook = (req, res, next) => {
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
@@ -59,8 +60,6 @@ exports.modifyBook = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message,
-      stack: error.stack,
-      name: error.name,
     });
   }
 };
@@ -71,7 +70,7 @@ exports.deleteBook = (req, res, next) => {
       if (!book) {
         return res.status(404).json({ message: "Book not found." });
       }
-      if (book.userId != req.auth.userId) {
+      if (book.userId !== req.auth.userId) {
         return res.status(403).json({ message: "Forbidden." });
       }
       const filename = book.imageUrl.split("/images/")[1];
@@ -88,16 +87,12 @@ exports.deleteBook = (req, res, next) => {
         .catch((error) => {
           return res.status(500).json({
             message: error.message,
-            stack: error.stack,
-            name: error.name,
           });
         });
     })
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
@@ -123,7 +118,8 @@ exports.rateBook = (req, res, next) => {
       //Somme des notes
       const total = book.ratings.reduce((sum, r) => sum + r.grade, 0);
       //Calcul de la moyenne
-      book.averageRating = total / book.ratings.length;
+      book.averageRating =
+        book.ratings.length > 0 ? total / book.ratings.length : 0;
 
       return book.save();
     })
@@ -133,8 +129,6 @@ exports.rateBook = (req, res, next) => {
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
@@ -152,8 +146,6 @@ exports.getBestRatedBooks = (req, res, next) => {
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
@@ -169,13 +161,11 @@ exports.getOneBook = (req, res, next) => {
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
 
-exports.getAllBook = (req, res) => {
+exports.getAllBooks = (req, res) => {
   Book.find()
     .then((books) => {
       return res.status(200).json(books);
@@ -183,8 +173,6 @@ exports.getAllBook = (req, res) => {
     .catch((error) => {
       return res.status(500).json({
         message: error.message,
-        stack: error.stack,
-        name: error.name,
       });
     });
 };
