@@ -41,7 +41,7 @@ module.exports = (req, res, next) => {
     const filepath = path.join("images", filename);
 
     sharp(req.file.buffer)
-      .resize(206, 260)
+      .resize(463, 595)
       .webp({ quality: 80 })
       .toFile(filepath)
       .then(() => {
